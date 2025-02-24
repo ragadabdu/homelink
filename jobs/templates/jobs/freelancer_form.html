@@ -3,12 +3,56 @@
 
 {% block content %}
 <div>
-    <h1 class="text-2xl my-4">Create Freelancer Profile</h1>
-    <form method="POST" enctype="multipart/form-data">
+    <h1 class="text-2xl my-4">Create Worker Profile</h1>
+    <form id="locationForm" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{form|crispy}}
+        {{ form|crispy }}
+        <label for="address">Address:</label>
+        <input class="px-8 py-2 border rounded-lg" type="text" id="address" name="address" required><br><br>
+        <label for="service">Service:</label>
+        <input class="px-8 py-2 border rounded-lg" type="text" id="service" name="service" required><br><br>
         <input class="px-8 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 hover:cursor-pointer" type="submit" value="Save">
     </form>
 </div>
+
+<script>
+   document.getElementById('locationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var address = document.getElementById('address').value;
+    var service = document.getElementById('service').value;
+
+    fetch('/api/freelancer_map/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ address: address, service: service })
+    })
+    .then(response => response.text()) // Use response.text() to log the full response
+    .then(text => {
+        console.log('Response:', text); // Log the response text
+        let data;
+        try {
+            data = JSON.parse(text); // Try to parse the response text as JSON
+        } catch (error) {
+            console.error('Failed to parse JSON:', error);
+            alert('Error: Failed to parse server response as JSON.');
+            return;
+        }
+        if (data.status === 'success') {
+            alert('Profile saved successfully!');
+            // Optionally, you can add a marker to the map dynamically here
+        } else {
+            alert('Failed to save profile: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error adding freelancer:', error);
+        alert('Error: ' + error.message); // Display error message
+    });
+});
+
+</script>
 
 {% endblock content %}

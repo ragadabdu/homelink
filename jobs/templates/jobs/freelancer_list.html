@@ -1,27 +1,58 @@
 {% extends 'jobs/_base.html' %}
 
 {% block content %}
-    <h1 class="text-4xl font-bold mb-8">All Freelance Developers</h1>
-    <div class="shadow">
-        {% for freelancer in object_list %}
-        <a href="{% url 'freelancer-detail' freelancer.pk %}">
-        <div class="p-6 border flex items-center">
-            <div>
-                {% if freelancer.profile_pic %}
-                <img class="w-20 border rounded-full mr-4" src="{{ freelancer.profile_pic.url }}" alt="Profile pic">
-                {% endif %}
-            </div>
-            <div>
-                <p class="text-lg font-semibold">
-                    {{freelancer.name}}
-                </p>
-                <p class="text-gray-700 pt-4">
-                    {{freelancer.tagline}}
-                </p>
-            </div>
-        </div>
-        </a>
-        {% endfor %}
-    </div>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 
+<style>
+    .container { max-width: 100%; margin:0; padding: 20px; }
+    .btn-primary { padding: 10px 20px; background-color: #007bff; border: none; color: white; cursor: pointer; }
+    .btn-primary:hover { background-color: #99bee6; }
+    .search-map-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .freelancer-list { max-width: 800px; margin: 0 auto; }
+    .input-group { flex: 1; display: flex; align-items: center; }
+    .input-group .form-control { flex-grow: 1; padding-left: 10px; width: 300px; }
+    .input-group-append .input-group-text { cursor: pointer; display: flex; align-items: center; }
+    .input-group-text { padding: 0 10px; }
+</style>
+<h1 class="text-4xl font-bold mb-8 text-center">All Service Providers</h1>
+<div class="shadow freelancer-list">
+    <div class="search-map-container">
+        <form method="GET" action="{% url 'freelancer-filter' %}" style="flex: 1; display: flex;">
+            <div class="form-row" style="flex: 1; display: flex;">
+                <div class="form-group col-12" style="flex: 1; display: flex;">
+                    <div class="input-group">
+                        <input id="search" class="form-control py-2 border-right-0 border" type="search" name="keywords" placeholder="what are you looking for ..." />
+                        <span class="input-group-append">
+                            <div class="input-group-text bg-transparent">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <a href="{% url 'freelancer_map' %}" class="btn btn-primary">Nearby Workers</a>
+    </div>
+    {% for freelancer in object_list %}
+    <a href="{% url 'freelancer-detail' freelancer.pk %}">
+    <div class="p-6 border flex items-center">
+        <div>
+            {% if freelancer.profile_pic %}
+            <img class="w-20 border rounded-full mr-4" src="{{ freelancer.profile_pic.url }}" alt="Profile pic">
+            {% endif %}
+        </div>
+        <div>
+            <p class="text-lg font-semibold">
+                {{freelancer.name}}
+            </p>
+            <p class="text-gray-700 pt-4">
+                {{freelancer.tagline}}
+            </p>
+            <a href="{% url 'freelancer-detail' freelancer.pk %}">View Details</a>
+        </div>
+    </div>
+    <hr>
+    </a>
+    {% endfor %}
+</div>
 {% endblock content %}

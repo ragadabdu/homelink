@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workers Map</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        // Initialize the map
+        function initMap() {
+            console.log("initMap called");
+
+            // Create a map instance and set its view to a default location and zoom level
+            var map = L.map('map').setView([40.7128, -74.0060], 4); // Center on New York
+
+            // Add a tile layer (e.g., OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Fetch freelancers data from the API
+            fetch('/api/freelancers/')
+                .then(response => response.json())
+                .then(data => {
+                    // Process each freelancer
+                    data.forEach(function(freelancer) {
+                        // Geocode the freelancer's address using Nominatim
+                        geocodeAddress(freelancer.address)
+                            .then(coords => {
+                                // Add a marker for the freelancer
+                                var marker = L.marker([coords.lat, coords.lon]).addTo(map);
+                                marker.bindPopup(`<b>${freelancer.name}</b><br>${freelancer.service}`);
+                            })
+                            .catch(error => {
+                                console.error('Error geocoding address:', error);
+                            });
+                    });
+                })
+                .catch(error => console.error('Error fetching freelancers:', error));
+        }
+
+        // Function to geocode an address using Nominatim API
+        function geocodeAddress(address) {
+            return new Promise((resolve, reject) => {
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            // Use the first result (most relevant)
+                            const lat = parseFloat(data[0].lat);
+                            const lon = parseFloat(data[0].lon);
+                            resolve({ lat, lon });
+                        } else {
+                            reject('No results found');
+                        }
+                    })
+                    .catch(error => reject(error));
+            });
+        }
+
+        // Call the initMap function when the page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
